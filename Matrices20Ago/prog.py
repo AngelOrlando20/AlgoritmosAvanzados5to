@@ -32,8 +32,18 @@ class Program:
         return result
 
 
-    def strassenMethod(self, a: np.ndarray, b: np.ndarray) -> np.ndarray: 
-        """Método para multiplicar matrices a fuerza bruta (de la forma AB = C)
+    def strassenMethod(self, a: np.ndarray, b: np.ndarray):
+        """Método para realizar multiplicación de straissen a matrices booleanas
+        Este método cubre al método strassenMethodRec(a,b) para poder realizar la operación.
+        """
+        a: np.ndarray = a.astype(np.int32)
+        b: np.ndarray = b.astype(np.int32)
+        c: np.ndarray = self.strassenMethodRec(a, b)
+        c = c > 0
+        return c
+
+    def strassenMethodRec(self, a: np.ndarray, b: np.ndarray) -> np.ndarray: 
+        """Método recursivo para multiplicar matrices a fuerza bruta (de la forma AB = C)
         Este método solo puede multiplicar matrices cuadradas del mismo tamaño 1x1, 2x2 o de la forma x = 2^n
         Complejidad de tiempo: O(n^log2(7))
 
@@ -43,15 +53,13 @@ class Program:
         Returns:
             np.ndarray: Resultado de la multiplicación de matrices
         """
-        a: np.ndarray = np.astype(a, np.int32)
-        b: np.ndarray = np.astype(b, np.int32)
-
         size: int = len(b)
         result: np.ndarray = np.zeros([size, size], dtype=np.int32)
  
         if size <= 1:
-            result[0][0] = a[0][0] + b[0][0]
-        elif size <= 2:
+            result[0, 0] = a[0, 0] * b[0, 0]
+            return result
+        elif size == 2:
             m1 = ( a[0, 0] + a[1, 1] ) * ( b[0, 0] + b[1, 1] )
             m2 = ( a[1, 0] + a[1, 1] ) * b[0, 0]
             m3 = a[0, 0] * ( b[0, 1] - b[1, 1] )
@@ -59,22 +67,25 @@ class Program:
             m5 = ( a[0, 0] + a[0, 1] ) * b[1, 1]
             m6 = ( a[1, 0] - a[0, 0] ) * ( b[0, 0] + b[0, 1] )
             m7 = ( a[0, 1] - a[1, 1] ) * ( b[1, 0] + b[1, 1] )
+            result[0, 0] = m1 + m4 - m5 + m7
+            result[0, 1] = m3 + m5
+            result[1, 0] = m2 + m4
+            result[1, 1] = m1 - m2 + m3 + m6
         else:
             a1, b1, c1, d1 = self.subdivide(a)
             a2, b2, c2, d2 = self.subdivide(b)
-            m1 = self.strassenMethod(a1 + d1, a2 + d2).astype(np.int32)
-            m2 = self.strassenMethod(c1 + d1, a2).astype(np.int32)
-            m3 = self.strassenMethod(a1, b2 - d2).astype(np.int32)
-            m4 = self.strassenMethod(d1, c2 - a2).astype(np.int32)
-            m5 = self.strassenMethod(a1 + b1, d2).astype(np.int32)
-            m6 = self.strassenMethod(c1 - a1, a2 + b2).astype(np.int32)
-            m7 = self.strassenMethod(b1 - d1, c2 + d2).astype(np.int32)
-        result[:size//2, :size//2] = m1 + m4 - m5 + m7
-        result[:size//2, size//2:] = m3 + m5
-        result[size//2:, :size//2] = m2 + m4
-        result[size//2:, size//2:] = m1 - m2 + m3 + m6
+            m1 = self.strassenMethodRec(a1 + d1, a2 + d2)
+            m2 = self.strassenMethodRec(c1 + d1, a2)
+            m3 = self.strassenMethodRec(a1, b2 - d2)
+            m4 = self.strassenMethodRec(d1, c2 - a2)
+            m5 = self.strassenMethodRec(a1 + b1, d2)
+            m6 = self.strassenMethodRec(c1 - a1, a2 + b2)
+            m7 = self.strassenMethodRec(b1 - d1, c2 + d2)
+            result[:size//2, :size//2] = m1 + m4 - m5 + m7
+            result[:size//2, size//2:] = m3 + m5
+            result[size//2:, :size//2] = m2 + m4
+            result[size//2:, size//2:] = m1 - m2 + m3 + m6
         
-        result = result.astype(np.bool)
         return result
 
 
@@ -125,10 +136,11 @@ class Program:
             tuple[np.ndarray]: Tupla de cuatro matrices cuadradas
         """
         n: int = len(matrix)
-        a: np.ndarray = matrix[:n//2, :n//2].copy()
-        b: np.ndarray = matrix[:n//2, n//2:].copy()
-        c: np.ndarray = matrix[n//2:, :n//2].copy()
-        d: np.ndarray = matrix[n//2:, n//2:].copy()
+        size = n // 2
+        a: np.ndarray = matrix[:size, :size].copy()
+        b: np.ndarray = matrix[:size, size:].copy()
+        c: np.ndarray = matrix[size:, :size].copy()
+        d: np.ndarray = matrix[size:, size:].copy()
         return (a, b, c, d)
 
 
@@ -152,7 +164,7 @@ def testBruteMethod():
 
     assert (C1 == np.array([ [0, 1], [1, 1] ], dtype=np.bool)).all()
     assert (C2 == np.array( [ [0] ], dtype=np.bool)).all()
-    assert (C3 == np.array( [[77, 136, 74, 96], [36, 99, 46, 86], [54, 114, 58, 89], [35, 41, 42, 12]], dtype=np.bool)).all()
+    assert (C3 == np.array( [[0, 0, 0, 1], [0, 1, 1, 1], [0, 1, 1, 1], [0, 1, 1, 1]], dtype=np.bool)).all()
 
 
 def testStraissenMethod():
@@ -208,8 +220,8 @@ def testBooleanMethod():
 
 if __name__ == "__main__":
     def ejemplo():
-        E: np.ndarray = np.array([ [0, 1, 0, 1], [1, 0, 0, 1], [1, 1, 0, 0], [1, 0, 0, 0]], dtype=np.int16)
-        F: np.ndarray = np.array([ [0, 1, 1, 1], [0, 0, 0, 1], [0, 0, 1, 1], [0, 0, 0, 1]], dtype=np.int16)
+        E: np.ndarray = np.array([ [0, 1, 0, 1], [1, 0, 0, 1], [1, 1, 0, 0], [1, 0, 0, 0]], dtype=np.bool)
+        F: np.ndarray = np.array([ [0, 1, 1, 1], [0, 0, 0, 1], [0, 0, 1, 1], [0, 0, 0, 1]], dtype=np.bool)
         prog: Program = Program()
 
         D1: np.ndarray = prog.strassenMethod(E, F)
@@ -247,5 +259,4 @@ if __name__ == "__main__":
     print(f"tiempo de ejecución de Strassen: {strassenTime: .3f}s")
     print(f"tiempo de ejecución de Boolean: {booleanTime: .3f}s")
 
-    print()
     ejemplo()
