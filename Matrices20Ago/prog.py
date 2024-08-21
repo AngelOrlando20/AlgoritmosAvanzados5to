@@ -101,7 +101,7 @@ class Program:
 
         # Recorrido por todas las filas de la primera matriz.
         for row in range(size):
-            # Posiciones de 1's en la fila actual de A
+            # Lista de 1's en la fila actual
             ones_positions: list[int] = [i for i in range(size) if a[row, i] == 1]
             # Recorrido de columnas de la matriz B
             for j in range(size):
