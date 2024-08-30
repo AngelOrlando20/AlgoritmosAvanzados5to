@@ -121,21 +121,3 @@ def pruebaWeddingBottomUp():
     program_c = WeddingShopping(m=5, c=3, garnments=[ [6, 4, 8], [10, 6], [7, 3, 1, 7] ])
     c = program_c.weddingBottomUp()                          
     assert c == -1 # No hay solución
-
-
-if __name__ == "__main__":
-    """Ejecutable del programa
-    hay una pregunta
-    ¿el programa tiene que preguntarte cuantos casos de prueba quieres ingresar?
-    """
-    program_a = WeddingShopping(m=100, c=4, garnments=[ [8, 6, 4], [5, 10], [1, 3, 3, 7], [50, 14, 23, 8] ])
-    a = program_a.weddingTopDown()
-
-    program_b = WeddingShopping(m=20, c=3, garnments=[ [4, 6, 8], [5, 10], [1, 3, 5, 5] ])
-    b = program_b.weddingTopDown()
-
-    program_c = WeddingShopping(m=5, c=3, garnments=[ [6, 4, 8], [10, 6], [7, 3, 1, 7] ])
-    c = program_c.weddingTopDown()                          
-    print(a)
-    print(b)
-    print("no solution" if c < 0 else c)
