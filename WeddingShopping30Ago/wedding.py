@@ -51,7 +51,7 @@ class WeddingShopping:
     def __weddingTopDown(self, money: int, c: int):
         if self.c == c:
             # Si ya no alcanzó el dinero en esta ruta, se regresa un negativo
-            if money < 0: return -1e10
+            if money < 0: return -10000
             # Si alcanzó el dinero, obtener el presupuesto total gastado (en la rama)
             else: return self.m - money
 
@@ -61,7 +61,9 @@ class WeddingShopping:
         max_budget: int = -1
         # Aplicar el método recursivo a todos los costos para obtener el máximo gasto posible.
         for garnment in self.garnments[c]:
-            max_budget = max(max_budget, self.__weddingTopDown(money - garnment, c + 1))
+            subproblem = self.__weddingTopDown(money - garnment, c + 1)
+            if max_budget < subproblem:
+                max_budget = subproblem
 
         self.memoTopDown[c][money] = max_budget
 
